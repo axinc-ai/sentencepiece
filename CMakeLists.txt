@@ -24,6 +24,7 @@ project(sentencepiece VERSION ${SPM_VERSION} LANGUAGES C CXX)
 
 option(SPM_ENABLE_NFKC_COMPILE "Enables NFKC compile" OFF)
 option(SPM_ENABLE_SHARED "Builds shared libaries in addition to static libraries." ON)
+option(SPM_ENABLE_APP "Builds app in addition to static libraries." ON)
 option(SPM_BUILD_TEST "Builds test binaries." OFF)
 option(SPM_COVERAGE "Runs gcov to test coverage." OFF)
 option(SPM_ENABLE_TENSORFLOW_SHARED "Makes a tensorflow compatible shared file." OFF)
