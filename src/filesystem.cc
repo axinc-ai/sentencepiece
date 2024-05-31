@@ -65,6 +65,44 @@ class PosixReadableFile : public ReadableFile {
   std::istream *is_;
 };
 
+class PosixReadableFileW : public ReadableFile {
+ public:
+  PosixReadableFileW(std::wstring filename, bool is_binary = false)
+      : is_(filename.empty()
+                ? &std::cin
+                : new std::ifstream(filename.c_str(),
+                                    is_binary ? std::ios::binary | std::ios::in
+                                              : std::ios::in)) {
+    if (!*is_)
+      status_ = util::StatusBuilder(util::StatusCode::kNotFound, GTL_LOC)
+                << "\"" << filename.data() << "\": " << util::StrError(errno);
+  }
+
+  ~PosixReadableFileW() {
+    if (is_ != &std::cin) delete is_;
+  }
+
+  util::Status status() const { return status_; }
+
+  bool ReadLine(std::string *line) {
+    return static_cast<bool>(std::getline(*is_, *line));
+  }
+
+  bool ReadAll(std::string *line) {
+    if (is_ == &std::cin) {
+      LOG(ERROR) << "ReadAll is not supported for stdin.";
+      return false;
+    }
+    line->assign(std::istreambuf_iterator<char>(*is_),
+                 std::istreambuf_iterator<char>());
+    return true;
+  }
+
+ private:
+  util::Status status_;
+  std::istream *is_;
+};
+
 class PosixWritableFile : public WritableFile {
  public:
   PosixWritableFile(absl::string_view filename, bool is_binary = false)
@@ -98,11 +136,17 @@ class PosixWritableFile : public WritableFile {
 };
 
 using DefaultReadableFile = PosixReadableFile;
+using DefaultReadableFileW = PosixReadableFileW;
 using DefaultWritableFile = PosixWritableFile;
 
 std::unique_ptr<ReadableFile> NewReadableFile(absl::string_view filename,
                                               bool is_binary) {
   return absl::make_unique<DefaultReadableFile>(filename, is_binary);
+}
+
+std::unique_ptr<ReadableFile> NewReadableFileW(std::wstring filename,
+                                              bool is_binary) {
+  return absl::make_unique<DefaultReadableFileW>(filename, is_binary);
 }
 
 std::unique_ptr<WritableFile> NewWritableFile(absl::string_view filename,

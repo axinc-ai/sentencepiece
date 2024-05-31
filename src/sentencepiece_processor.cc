@@ -216,6 +216,12 @@ util::Status SentencePieceProcessor::Load(absl::string_view filename) {
   return Load(std::move(model_proto));
 }
 
+util::Status SentencePieceProcessor::LoadW(std::wstring filename) {
+  auto model_proto = absl::make_unique<ModelProto>();
+  RETURN_IF_ERROR(io::LoadModelProtoW(filename, model_proto.get()));
+  return Load(std::move(model_proto));
+}
+
 void SentencePieceProcessor::LoadOrDie(absl::string_view filename) {
   CHECK_OK(Load(filename));
 }
@@ -1095,6 +1101,22 @@ util::Status LoadModelProto(absl::string_view filename,
   }
 
   auto input = filesystem::NewReadableFile(filename, true);
+  RETURN_IF_ERROR(input->status());
+  std::string serialized;
+  CHECK_OR_RETURN(input->ReadAll(&serialized));
+  CHECK_OR_RETURN(
+      model_proto->ParseFromArray(serialized.data(), serialized.size()));
+
+  return util::OkStatus();
+}
+
+util::Status LoadModelProtoW(std::wstring filename,
+                            ModelProto *model_proto) {
+  if (filename.empty()) {
+    return util::NotFoundError("model file path should not be empty.");
+  }
+
+  auto input = filesystem::NewReadableFileW(filename, true);
   RETURN_IF_ERROR(input->status());
   std::string serialized;
   CHECK_OR_RETURN(input->ReadAll(&serialized));
