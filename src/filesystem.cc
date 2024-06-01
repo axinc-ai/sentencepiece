@@ -65,6 +65,7 @@ class PosixReadableFile : public ReadableFile {
   std::istream *is_;
 };
 
+#ifdef WIN32
 class PosixReadableFileW : public ReadableFile {
  public:
   PosixReadableFileW(std::wstring filename, bool is_binary = false)
@@ -102,6 +103,7 @@ class PosixReadableFileW : public ReadableFile {
   util::Status status_;
   std::istream *is_;
 };
+#endif
 
 class PosixWritableFile : public WritableFile {
  public:
@@ -136,7 +138,6 @@ class PosixWritableFile : public WritableFile {
 };
 
 using DefaultReadableFile = PosixReadableFile;
-using DefaultReadableFileW = PosixReadableFileW;
 using DefaultWritableFile = PosixWritableFile;
 
 std::unique_ptr<ReadableFile> NewReadableFile(absl::string_view filename,
@@ -144,10 +145,14 @@ std::unique_ptr<ReadableFile> NewReadableFile(absl::string_view filename,
   return absl::make_unique<DefaultReadableFile>(filename, is_binary);
 }
 
+#ifdef WIN32
+using DefaultReadableFileW = PosixReadableFileW;
+
 std::unique_ptr<ReadableFile> NewReadableFileW(std::wstring filename,
                                               bool is_binary) {
   return absl::make_unique<DefaultReadableFileW>(filename, is_binary);
 }
+#endif
 
 std::unique_ptr<WritableFile> NewWritableFile(absl::string_view filename,
                                               bool is_binary) {

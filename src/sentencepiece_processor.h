@@ -242,7 +242,9 @@ class SentencePieceProcessor {
   // Loads model from `filename`.
   // Returns false if `filename` cannot be loaded.
   virtual util::Status Load(absl::string_view filename);
+#ifdef WIN32
   virtual util::Status LoadW(std::wstring filename);
+#endif
 
   // Loads model from `filename`.
   // Crash if `filename` cannot be loaded.
@@ -720,7 +722,9 @@ namespace io {
 //  SentencePieceProcessor sp;
 //  CHECK_OK(sp.Load(std::move(model_proto)));
 util::Status LoadModelProto(absl::string_view, ModelProto *model_proto);
+#ifdef WIN32
 util::Status LoadModelProtoW(std::wstring, ModelProto *model_proto);
+#endif
 
 // Saves `model_proto` as `filename`.
 util::Status SaveModelProto(absl::string_view, const ModelProto &model_proto);

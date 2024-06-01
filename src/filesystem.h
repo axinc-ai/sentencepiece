@@ -51,8 +51,10 @@ class WritableFile {
 
 std::unique_ptr<ReadableFile> NewReadableFile(absl::string_view filename,
                                               bool is_binary = false);
+#ifdef WIN32
 std::unique_ptr<ReadableFile> NewReadableFileW(std::wstring filename,
                                               bool is_binary = false);
+#endif
 std::unique_ptr<WritableFile> NewWritableFile(absl::string_view filename,
                                               bool is_binary = false);
 

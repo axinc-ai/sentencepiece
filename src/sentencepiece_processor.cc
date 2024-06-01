@@ -216,11 +216,13 @@ util::Status SentencePieceProcessor::Load(absl::string_view filename) {
   return Load(std::move(model_proto));
 }
 
+#ifdef WIN32
 util::Status SentencePieceProcessor::LoadW(std::wstring filename) {
   auto model_proto = absl::make_unique<ModelProto>();
   RETURN_IF_ERROR(io::LoadModelProtoW(filename, model_proto.get()));
   return Load(std::move(model_proto));
 }
+#endif
 
 void SentencePieceProcessor::LoadOrDie(absl::string_view filename) {
   CHECK_OK(Load(filename));
@@ -1110,6 +1112,7 @@ util::Status LoadModelProto(absl::string_view filename,
   return util::OkStatus();
 }
 
+#ifdef WIN32
 util::Status LoadModelProtoW(std::wstring filename,
                             ModelProto *model_proto) {
   if (filename.empty()) {
@@ -1125,6 +1128,7 @@ util::Status LoadModelProtoW(std::wstring filename,
 
   return util::OkStatus();
 }
+#endif
 
 util::Status SaveModelProto(absl::string_view filename,
                             const ModelProto &model_proto) {
